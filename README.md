@@ -37,7 +37,11 @@ To train the Vision Transformer model on the provided dataset, follow these step
     ```
     git clone https://github.com/tikendraw/pneumonia-detection-with-vision-transformer.git
     ```
-2. Prepare the dataset and configure the  `config.py` then execute the config.py.
+2. Install the requirements 
+    ```
+    pip install requirements.txt
+    ```
+3. Prepare the dataset and configure the  `config.py` then execute the config.py.
 
     > folder structure must be
     ```     
@@ -60,7 +64,7 @@ To train the Vision Transformer model on the provided dataset, follow these step
     ```
     python3 config.py
     ```
-3. Run the training script using the `train.py` file.
+4. Run the training script using the `train.py` file.
     ```
     python3 train.py 
     ```
