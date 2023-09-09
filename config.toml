@@ -18,3 +18,4 @@ learning_rate = 0.0002
 model_path = "models/vit2.pth"
 data_dir = "dataset/"
 num_epochs = 10
+seed = 42
