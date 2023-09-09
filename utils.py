@@ -1,5 +1,8 @@
 # Vision Transformer (ViT)
+import os
+import random
 import time
+from pathlib import Path
 
 import numpy as np
 import seaborn as sns
@@ -133,9 +136,6 @@ def validate_model(
     print()
 
 
-from pathlib import Path
-
-import numpy as np
 
 
 def calculate_class_weights_from_directory(directory_path):
@@ -171,3 +171,35 @@ def calculate_class_weights_from_directory(directory_path):
   class_weights = 1.0 / bincount[class_dist]
 
   return class_dist, class_weights, bincount
+
+
+
+def set_seed(seed_value=42):
+    """
+    Set seed for reproducibility in PyTorch, NumPy, and Python's random library.
+
+    Args:
+        seed_value (int): The seed value to set.
+
+    Returns:
+        None
+    """
+    # Set seed for NumPy
+    np.random.seed(seed_value)
+
+    # Set seed for Python's random library
+    random.seed(seed_value)
+
+    # Set seed for PyTorch
+    torch.manual_seed(seed_value)
+    torch.cuda.manual_seed(seed_value)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+    # Set seed for CuDNN (if available)
+    if torch.cuda.is_available():
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+
+    # Set the environment variable for better reproducibility
+    os.environ['PYTHONHASHSEED'] = str(seed_value)
