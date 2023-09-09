@@ -31,9 +31,11 @@ config.final_resnet_output_dim = 2048
 config.num_classes = 2
 config.learning_rate = 2e-4
 
+
 config.model_path = 'models/vit2.pth'
 config.data_dir = 'dataset/'
 
 config.num_epochs = 10
+config.seed = 42
 
 config.save_toml('config.toml')
