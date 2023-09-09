@@ -5,14 +5,14 @@ import os
 import numpy as np
 import pandas as pd
 import torch
-from funcyou.utils import DotDict
+from funcyou.utils import DotDict, set_seed
 from PIL import Image
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from tqdm import tqdm
 
 from data import ImageFolderWithPaths
-from model import VisionTransformer  # Import your model class
+from model import VisionTransformer
 
 
 def load_and_preprocess_image(image_path, transform):
@@ -52,10 +52,12 @@ def predict_directory(directory_path, model, transform, batch_size=8, device='cp
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Pneumonia Detection using Vision Transformer')
-    parser.add_argument('image_directory', type=str, help='Path to the directory containing test images')
+    parser.add_argument('image_directory', type=str, help='Path to the directory containing test folder that contains images')
     args = parser.parse_args()
 
     config = DotDict.from_toml('config.toml')
+    set_seed(config.seed)
+
     model = VisionTransformer(config)
     config.device = 'cuda' if torch.cuda.is_available() else 'cpu'
     
