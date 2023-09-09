@@ -1,4 +1,5 @@
 # predict.py
+import argparse
 import os
 
 import numpy as np
@@ -50,13 +51,16 @@ def predict_directory(directory_path, model, transform, batch_size=8, device='cp
     )
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Pneumonia Detection using Vision Transformer')
+    parser.add_argument('image_directory', type=str, help='Path to the directory containing test images')
+    args = parser.parse_args()
+
     config = DotDict.from_toml('config.toml')
     model = VisionTransformer(config)
     config.device = 'cuda' if torch.cuda.is_available() else 'cpu'
     
     # Load the trained model weights
     model.load_state_dict(torch.load(config.model_path))
-    print('model path: ', config.model_path)
     model.to(config.device)
     model.eval()
     
@@ -66,10 +70,10 @@ if __name__ == "__main__":
         transforms.ToTensor()
     ])
     
-    # Replace 'your_image_directory' with the path to the directory containing test images
-    image_directory = 'dataset/val'
+    image_directory = Path(args.image_directory) 
     
     result_df = predict_directory(image_directory, model, test_transform)
     
     print(result_df)  # Display the first few rows of the DataFrame
     result_df.to_csv('output.csv')
+    print('Output saved in output.csv!')
