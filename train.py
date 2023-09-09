@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 from data import load_data  # Import data-related functions
 from model import VisionTransformer  # Import your VIT model class
-from utils import evaluate_model, validate_model
+from utils import evaluate_model, set_seed, validate_model
 
 
 # Training function
@@ -92,7 +92,9 @@ def train_model(
 # Main training function
 def main():
     config = DotDict.from_toml('config.toml')  # Load configuration
+    set_seed(config.seed)
     config.device= 'cuda' if torch.cuda.is_available() else 'cpu'
+    
     
     if config.test:
         train_dataloader, test_dataloader = load_data(config.data_dir, config.image_size, config.batch_size, num_workers=2, test=config.test)
