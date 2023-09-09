@@ -74,9 +74,6 @@ To train the Vision Transformer model on the provided dataset, follow these step
 After training the model, you can make predictions on new chest X-ray images using the following steps:
 
 1. Place the test images in a directory.
-    ```
-    python3 predict.py directory/to/a/folder/that/contains/images/to/test
-    ```
 
 2. Run the prediction script using the `predict.py` file.
     ```
