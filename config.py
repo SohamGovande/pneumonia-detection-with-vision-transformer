@@ -15,7 +15,7 @@ config = DotDict()
 config.image_size = 512  # should be mutiple of patch_size
 config.batch_size = 8
 config.device = 'cuda'
-config.test = True
+config.test = False
 #model configurations
 config.num_layers = 4
 config.resnet_layers = 2
@@ -35,7 +35,7 @@ config.learning_rate = 2e-4
 config.model_path = 'models/vit2.pth'
 config.data_dir = 'dataset/'
 
-config.num_epochs = 40
+config.num_epochs = 1
 config.seed = 42
 
 config.save_toml('config.toml')
