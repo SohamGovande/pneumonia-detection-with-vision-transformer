@@ -19,8 +19,7 @@ def load_data(data_dir, image_size, batch_size, num_workers, test=False):
     train_transform = transforms.Compose([
         transforms.RandomRotation(degrees=(-10, 10)),
         transforms.RandomHorizontalFlip(),
-        transforms.RandomVerticalFlip(),
-        transforms.RandomResizedCrop(image_size, scale=(0.7, 1.3)),
+        transforms.RandomResizedCrop(image_size, scale=(0.8, 1.2)),
         transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
         transforms.ToTensor(), 
     ])
@@ -47,11 +46,7 @@ def load_data(data_dir, image_size, batch_size, num_workers, test=False):
     else:
         return train_dataloader
     
-def get_class_mapping(data_dir):
-    train_dir = os.path.join(data_dir, 'train')
-    classes = sorted(os.listdir(train_dir))
-    return {cls_name: idx for idx, cls_name in enumerate(classes)}
-
+    
 class ImageFolderWithPaths(ImageFolder):
     def __init__(self, root, transform=None, target_transform=None, loader=default_loader):
         super(ImageFolderWithPaths, self).__init__(root, transform, target_transform, loader)
