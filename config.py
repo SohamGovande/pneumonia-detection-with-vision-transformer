@@ -35,7 +35,7 @@ config.learning_rate = 2e-4
 config.model_path = 'models/vit2.pth'
 config.data_dir = 'dataset/'
 
-config.num_epochs = 10
+config.num_epochs = 40
 config.seed = 42
 
 config.save_toml('config.toml')
