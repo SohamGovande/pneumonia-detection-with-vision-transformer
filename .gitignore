@@ -2,3 +2,5 @@ dataset/
 __pycache__/*
 output.csv
 output*.csv
+prediction.log
+train.log
