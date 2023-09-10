@@ -1,7 +1,7 @@
 image_size = 512
 batch_size = 8
 device = "cuda"
-test = true
+test = false
 num_layers = 4
 resnet_layers = 2
 hidden_dim = 120
@@ -17,5 +17,5 @@ num_classes = 2
 learning_rate = 0.0002
 model_path = "models/vit2.pth"
 data_dir = "dataset/"
-num_epochs = 40
+num_epochs = 1
 seed = 42
