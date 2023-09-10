@@ -16,6 +16,7 @@ from torchvision import transforms
 from torchvision.datasets import ImageFolder
 from tqdm import tqdm
 
+from data import load_image_data
 from model import VisionTransformer
 from utils import evaluate_model, set_seed
 
