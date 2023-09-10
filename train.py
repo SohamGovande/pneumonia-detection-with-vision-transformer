@@ -1,3 +1,5 @@
+import argparse
+import logging
 import time
 from pathlib import Path
 
@@ -5,13 +7,19 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from funcyou.utils import DotDict
+from sklearn.metrics import (accuracy_score, f1_score, precision_score,
+                             recall_score)
 from torch.utils.data import DataLoader
+from torchvision import transforms
 from tqdm import tqdm
 
-from data import load_data  # Import data-related functions
-from model import VisionTransformer  # Import your VIT model class
-from utils import evaluate_model, set_seed, validate_model
+from data import load_image_data
+from model import VisionTransformer
+from utils import predict_model, set_seed
 
+# Configure logger
+logging.basicConfig(filename='training.log', level=logging.INFO, format='%(asctime)s - %(message)s')
+logger = logging.getLogger()
 
 # Training function
 def train_model(
@@ -83,24 +91,41 @@ def train_model(
         print(
             f"\nEpoch [{epoch + 1:2}/{num_epochs:2}] - Average Loss: {average_loss:.8f} - Average Accuracy: {average_accuracy:.2f}%"
         )
-        print()
+        logger.info(
+            f"Epoch [{epoch + 1:2}/{num_epochs:2}] - Average Loss: {average_loss:.8f} - Average Accuracy: {average_accuracy:.2f}%"
+        )
 
         if (epoch+1) % save_on_every_n_epochs == 0 and model_path is not None:
             torch.save(model.state_dict(), model_path)
 
 
+
+
 # Main training function
 def main():
+    parser = argparse.ArgumentParser(description='Vision Transformer Training and Testing')
+    parser.add_argument('image_directory', type=str, help='Path to the directory containing training images')
+    parser.add_argument('--test', action='store_true', default=False, help='Flag to test a directory')
+    parser.add_argument('--test-directory', type=str, help='Path to the directory containing test images when testing')
+
+    args = parser.parse_args()
+    
     config = DotDict.from_toml('config.toml')  # Load configuration
     set_seed(config.seed)
-    config.device= 'cuda' if torch.cuda.is_available() else 'cpu'
+    config.device = 'cuda' if torch.cuda.is_available() else 'cpu'
     
     
-    if config.test:
-        train_dataloader, test_dataloader = load_data(config.data_dir, config.image_size, config.batch_size, num_workers=2, test=config.test)
-    else:
-        train_dataloader = load_data(config.data_dir, config.image_size, config.batch_size, num_workers=2, test=config.test)
-        
+    train_transform = transforms.Compose([
+        transforms.RandomRotation(degrees=(-10, 10)),
+        transforms.RandomHorizontalFlip(),
+        ransforms.RandomPerspective(distortion_scale=0.2, p=0.3),
+        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
+        transforms.Resize((config.image_size, config.image_size)),
+        transforms.ToTensor(), 
+    ])
+
+    train_dataloader = load_image_data(args.image_directory, config.image_size, config.batch_size, use_sampler=True, transform=train_transform)
+    
     # Initialize your VIT model and optimizer
     model = VisionTransformer(config)
     loss_function = nn.BCELoss()
@@ -118,17 +143,36 @@ def main():
     except Exception as e:
         raise e
     finally:
+        logger.info(f'Training data: {args.image_directory}')
         # Train the model
         train_model(model, train_dataloader, optimizer, loss_function, num_epochs=config.num_epochs, device=config.device, model_path=model_path)
         torch.save(model.state_dict(), config.model_path)
         
-    if config.test:
-        # validate on test data
-        validate_model(model, test_dataloader, loss_function, config.device)
+    if args.test:
+        logger.info(f'Testing data: {args.test_directory}')
+
+        test_dataloader = load_image_data(args.test_directory, config.image_size, config.batch_size)
         
         # plotting
-        y_true, y_pred = evaluate_model(model, test_dataloader, device=config.device)
+        y_true, y_pred = predict_model(model, test_dataloader, device=config.device)
         
+        # Calculate evaluation metrics
+        accuracy = accuracy_score(y_true, y_pred)
+        precision = precision_score(y_true, y_pred)
+        recall = recall_score(y_true, y_pred)
+        f1 = f1_score(y_true, y_pred)
+        
+        # Log the metrics
+        logger.info(f'Accuracy: {accuracy}')
+        logger.info(f'Precision: {precision}')
+        logger.info(f'Recall: {recall}')
+        logger.info(f'F1 Score: {f1}')
+        logger.info('-'*40)
+        # Print metrics in the terminal
+        print(f'Accuracy: {accuracy}')
+        print(f'Precision: {precision}')
+        print(f'Recall: {recall}')
+        print(f'F1 Score: {f1}')
 
 
 if __name__ == "__main__":
