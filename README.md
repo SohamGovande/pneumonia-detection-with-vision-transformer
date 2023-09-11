@@ -66,18 +66,24 @@ To train the Vision Transformer model on the provided dataset, follow these step
     ```
 4. Run the training script using the `train.py` file.
     ```
-    python3 train.py 
+    python3 train.py path/to/train/folder/
     ```
 
-### Prediction
+    if you have a test set and as folder structure as above pass
+    ```
+    python3 train.py path/to/train/folder/ --test --test-directory path/to/test/folder/ 
+    ```
+
+### Prediction/train/
 
 After training the model, you can make predictions on new chest X-ray images using the following steps:
 
 1. Place the test images in a directory.
+    >This does not have to follow folder structure
 
 2. Run the prediction script using the `predict.py` file.
     ```
-    python3 predict.py directory/to/a/folder/that/contains/images/to/test
+    python3 predict.py path/to/test/folder/ 
     ```
 
 ### Running the Streamlit App
@@ -93,6 +99,6 @@ Contributions to this project are welcome. If you have any suggestions, bug repo
 
 ## Acknowledgements
 
-- Special thanks to the creators and maintainers of the Vision Transformer (ViT) architecture.
-- The dataset used in this project is from [provide dataset source].
+- Thanks to [Aladdin persson](https://github.com/aladdinpersson) for his tutorial on [How to deal with Imbalanced Datasets in PyTorch - Weighted Random Sampler Tutorial](https://www.youtube.com/watch?v=4JFVhJyTZ44)
+- The dataset used in this project is from [Chest X-Ray Images (Pneumonia)](https://www.kaggle.com/datasets/lasaljaywardena/pneumonia-chest-x-ray-dataset) .
 
