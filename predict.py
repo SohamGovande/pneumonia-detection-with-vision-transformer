@@ -18,7 +18,7 @@ from tqdm import tqdm
 
 from data import load_image_data
 from model import VisionTransformer
-from utils import evaluate_model, set_seed
+from utils import predict_model, set_seed
 
 # Configure logger
 logging.basicConfig(filename='prediction.log', level=logging.INFO, format='%(asctime)s - %(message)s')
@@ -106,9 +106,13 @@ if __name__ == "__main__":
     model.eval()
     
     # Define transformations for test images (should be the same as used during training)
-    test_transform = transforms.Compose([
+    transform = transforms.Compose([
+        transforms.RandomRotation(degrees=(-10, 10)),
+        transforms.RandomHorizontalFlip(),
+        ransforms.RandomPerspective(distortion_scale=0.2, p=0.3),
+        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
         transforms.Resize((config.image_size, config.image_size)),
-        transforms.ToTensor()
+        transforms.ToTensor(), 
     ])
     
     image_directory = Path(args.image_directory) 
@@ -117,7 +121,7 @@ if __name__ == "__main__":
     logger.info(f'Testing directory: {image_directory}')
     
     if test:
-        result_df = test_directory(image_directory, model, test_transform, batch_size=8, device=config.device)
+        result_df = test_directory(image_directory, model, transform, batch_size=8, device=config.device)
         
         # Calculate evaluation metrics
         y_true = result_df["True_Class"].values
@@ -139,7 +143,7 @@ if __name__ == "__main__":
         print(f'Recall: {recall}')
         print(f'F1 Score: {f1}')
     else:
-        result_df = predict_directory(image_directory, model, test_transform)
+        result_df = predict_directory(image_directory, model, transform)
     
     # Log the number of images
     num_images = len(result_df)
