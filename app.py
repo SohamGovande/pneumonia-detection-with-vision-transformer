@@ -68,11 +68,14 @@ def main():
             
         else:
             st.success('Normal. Pneumonia not detected. confidance({confidance:.2%})')
+            
+            
 
 
     # Project Usage and Links
     st.sidebar.write("## Project Usage")
     st.sidebar.write("This project performs Pneumonia detection on X-ray image and return result as positive or negative.")
+    st.info('Note: The Default model has been trained on a imbalance dataset containing 27% Normal and 73% Pneumonia xrays. We used weighted sampling Technique to overcome the Imbalance. Train the Model on a fair dataset and try again.')
     st.sidebar.write("## GitHub Repository")
     st.sidebar.write("Source Code here [GitHub repository](https://github.com/tikendraw/pneumonia-detection-with-vision-transformer).")
     st.sidebar.write("If you have any feedback or suggestions, feel free to open an issue or a pull request.")
@@ -87,14 +90,9 @@ def main():
     c2.write('### Tikendra Kumar Sahu')
     st.sidebar.write('Data Science Enthusiast')
 
-    if st.sidebar.button('Github'):
-        webbrowser.open('https://github.com/tikendraw')
-
-    if st.sidebar.button('LinkdIn'):
-        webbrowser.open('https://www.linkedin.com/in/tikendraw/')
-            
-    if st.sidebar.button('Instagram'):
-        webbrowser.open('https://www.instagram.com/tikendraw/')
+    st.sidebar.markdown("[Github](https://www.github.com/tikendraw)")
+    st.sidebar.markdown("[LinkdIn](https://www.linkedin.com/in/tikendraw/)")            
+    st.sidebar.markdown("[Instagram](https://www.instagram.com/tikendraw/)")
         
 
 
