@@ -25,9 +25,12 @@ def predict_image(image, model, transform, device='cpu'):
 
 def main():
     st.title("Pneumonia Detection using Vision Transformer")
+        # Introduction and Project Information
+    st.write("This is a Streamlit app for performing Pneumonia Detection on Xrays.")
+
 
     # Upload image
-    uploaded_image = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
+    uploaded_image = st.file_uploader("Upload an Lung X-ray", type=["jpg", "jpeg", "png"])
 
     if uploaded_image is not None:
         image = Image.open(uploaded_image)
@@ -43,18 +46,56 @@ def main():
         model.load_state_dict(torch.load(config.model_path))
         model.to(config.device)
         model.eval()
-
-        test_transform = transforms.Compose([
+        
+        transform = transforms.Compose([
+            transforms.RandomRotation(degrees=(-10, 10)),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomPerspective(distortion_scale=0.2, p=0.3),
+            transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
             transforms.Resize((config.image_size, config.image_size)),
-            transforms.ToTensor()
+            transforms.ToTensor(), 
         ])
 
-        preprocessed_image = load_and_preprocess_image(uploaded_image, test_transform)
-        prediction, attention_weights = predict_image(preprocessed_image, model, test_transform, config.device)
+        preprocessed_image = load_and_preprocess_image(uploaded_image, transform)
+        prediction, attention_weights = predict_image(preprocessed_image, model, transform, config.device)
 
         # Display prediction
-        st.write("Prediction:")
-        st.write(f"Pneumonia Probability: {prediction[0][0]:.2%}")
+        st.write("Prediction")
+        
+        confidance = float(abs(0.5 - prediction[0])) * 2
+        if np.round(prediction[0])==1:
+            st.error(f"Pneumonia Positive.  confidance({confidance:.2%})")
+            
+        else:
+            st.success('Normal. Pneumonia not detected. confidance({confidance:.2%})')
+
+
+    # Project Usage and Links
+    st.sidebar.write("## Project Usage")
+    st.sidebar.write("This project performs Pneumonia detection on X-ray image and return result as positive or negative.")
+    st.sidebar.write("## GitHub Repository")
+    st.sidebar.write("Source Code here [GitHub repository](https://github.com/tikendraw/pneumonia-detection-with-vision-transformer).")
+    st.sidebar.write("If you have any feedback or suggestions, feel free to open an issue or a pull request.")
+    st.sidebar.write("## Like the Project?")
+    st.sidebar.write("If you find this project interesting or useful, don't forget to give it a star on GitHub!")
+    st.sidebar.markdown('![GitHub Repo stars](https://img.shields.io/github/stars/tikendraw/pneumonia-detection-with-vision-transformer?style=flat&logo=github&logoColor=white&label=Github%20Stars)', unsafe_allow_html=True)
+
+
+    st.sidebar.write('### Created by:')
+    c1, c2 = st.sidebar.columns([4,4])
+    c1.image('./notebook/me.jpg', width=150)
+    c2.write('### Tikendra Kumar Sahu')
+    st.sidebar.write('Data Science Enthusiast')
+
+    if st.sidebar.button('Github'):
+        webbrowser.open('https://github.com/tikendraw')
+
+    if st.sidebar.button('LinkdIn'):
+        webbrowser.open('https://www.linkedin.com/in/tikendraw/')
+            
+    if st.sidebar.button('Instagram'):
+        webbrowser.open('https://www.instagram.com/tikendraw/')
+        
 
 
 if __name__ == "__main__":
