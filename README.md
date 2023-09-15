@@ -14,6 +14,7 @@ Dataset here [Chest X-Ray Images (Pneumonia)](https://www.kaggle.com/datasets/la
 
 The Vision Transformer (ViT) architecture is employed to classify chest X-ray images into pneumonia or non-pneumonia cases. The model is trained to extract meaningful features from the images and make predictions based on these features.
 
+> NOTE: TRAIN MODEL WITH YOU OWN DATA.
 ## Getting Started
 
 Follow the steps below to get started with this project:
