@@ -13,9 +13,10 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from tqdm import tqdm
 
-from data import load_image_data
+from data import compute_accuracies, load_image_data
 from model import VisionTransformer
 from utils import predict_model, set_seed
+from collections import Counter
 
 # Configure logger
 logging.basicConfig(filename='training.log', level=logging.INFO, format='%(asctime)s - %(message)s')
@@ -50,6 +51,8 @@ def train_model(
         )
         
         last_update_time = time.time() - 1.0  
+        sliding_window_size = 20
+        sliding_window = []
 
         for j, batch in enumerate(epoch_progress):
             image, label = batch
@@ -60,25 +63,33 @@ def train_model(
 
             outputs, _ = model(image)
             outputs = outputs.squeeze()
-            predictions = torch.round(outputs)
+            
+            predictions = torch.argmax(outputs, dim=1)
 
-            loss = loss_function(outputs, label.to(outputs.dtype))
+            loss = loss_function(outputs, label)
             loss.backward(retain_graph=True)
             optimizer.step()
-
+            
+            accuracy = compute_accuracies(predictions, label)
+            sliding_window.append(accuracy)
+            while len(sliding_window) > sliding_window_size:
+                sliding_window.pop(0)
+            
             total_loss += loss.item()
             total_correct_predictions += (predictions.to(torch.int32) == label.to(torch.int32)).sum().item()
             total_samples += label.size()[0]
 
             formatted_loss = f"{loss.item():.8f}"
-            accuracy = (total_correct_predictions / total_samples) * 100
-            formatted_accuracy = f"{accuracy:.2f}%"
-            
             
             current_time = time.time()
             if current_time - last_update_time > epoch_progress.mininterval:
+                average_sliding_window = {
+                    key: sum(d[key] for d in sliding_window) / len(sliding_window)
+                    for key in sliding_window[0]
+                }
+                
                 epoch_progress.set_postfix(
-                    {"Loss": formatted_loss, "Accuracy": formatted_accuracy}
+                    {"Loss": formatted_loss, **average_sliding_window}
                 )
                 last_update_time = current_time
 
@@ -118,7 +129,7 @@ def main():
     train_transform = transforms.Compose([
         transforms.RandomRotation(degrees=(-10, 10)),
         transforms.RandomHorizontalFlip(),
-        ransforms.RandomPerspective(distortion_scale=0.2, p=0.3),
+        transforms.RandomPerspective(distortion_scale=0.2, p=0.3),
         transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
         transforms.Resize((config.image_size, config.image_size)),
         transforms.ToTensor(), 
@@ -128,7 +139,7 @@ def main():
     
     # Initialize your VIT model and optimizer
     model = VisionTransformer(config)
-    loss_function = nn.BCELoss()
+    loss_function = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=config.learning_rate)
 
     # Optional: Load pretrained model weights
@@ -136,8 +147,9 @@ def main():
     model_path.parent.mkdir(exist_ok=True)
     
     try:
-        model.load_state_dict(torch.load(model_path))
-        print(f"Loaded pretrained model weights from {model_path}")
+        print("Skipping weights")
+        # model.load_state_dict(torch.load(model_path))
+        # print(f"Loaded pretrained model weights from {model_path}")
     except FileNotFoundError:
         print('No saved model weights found.')
     except Exception as e:

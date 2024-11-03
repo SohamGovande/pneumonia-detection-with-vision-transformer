@@ -1,5 +1,8 @@
 image_size = 512
-batch_size = 8
+batch_size = 64
+num_epochs = 4
+num_classes = 2
+
 device = "cuda"
 test = false
 num_layers = 4
@@ -13,9 +16,7 @@ num_patches = 256
 num_channels = 3
 patching_elements = 3072
 final_resnet_output_dim = 2048
-num_classes = 2
 learning_rate = 0.0002
 model_path = "models/vit2.pth"
 data_dir = "dataset/"
-num_epochs = 1
 seed = 42

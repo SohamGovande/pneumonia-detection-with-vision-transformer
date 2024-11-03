@@ -89,7 +89,7 @@ def validate_model(
 
 
 
-def calculate_class_weights_from_directory(directory_path:Path):
+def calculate_class_weights_from_directory(directory_path:Path, allowed_classes=['normal', 'pneumonia']):
     """
     This function calculates the class weights for a given directory of images.
 
@@ -104,7 +104,7 @@ def calculate_class_weights_from_directory(directory_path:Path):
     directory = Path(directory_path)
 
     # Get a list of subdirectories (classes)
-    classes = sorted([d.name for d in directory.iterdir() if d.is_dir()])
+    classes = sorted([d.name for d in directory.iterdir() if d.is_dir() and d.name in allowed_classes])
 
     # Initialize class_dist to store class labels
     class_dist = []

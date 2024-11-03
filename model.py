@@ -123,7 +123,7 @@ class VisionTransformer(nn.Module):
 
         self.encoder = EncoderStack(config)
         self.dense = nn.Linear(config.hidden_dim, config.hidden_dim)
-        self.final_layer = nn.Linear(config.hidden_dim, 1)
+        self.final_layer = nn.Linear(config.hidden_dim, config.num_classes)
         self.device = config.device
         self.patch_linear_proj = nn.Linear(config.patching_elements, config.hidden_dim, bias=False).to(config.device)
         self.patcher = Patcher((config.patch_size,config.patch_size))
@@ -148,8 +148,6 @@ class VisionTransformer(nn.Module):
         encoded_output, attention_weights_list = self.encoder(patch_embeddings)
         encoded_output = encoded_output.mean(dim=1)
         encoded_output = self.final_layer(self.dense(encoded_output))
-        encoded_output = self.sigmoid(encoded_output)
-        encoded_output = encoded_output.view(batch_size, 1)
         return encoded_output, attention_weights_list
 
 

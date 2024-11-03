@@ -109,7 +109,7 @@ if __name__ == "__main__":
     transform = transforms.Compose([
         transforms.RandomRotation(degrees=(-10, 10)),
         transforms.RandomHorizontalFlip(),
-        ransforms.RandomPerspective(distortion_scale=0.2, p=0.3),
+        transforms.RandomPerspective(distortion_scale=0.2, p=0.3),
         transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
         transforms.Resize((config.image_size, config.image_size)),
         transforms.ToTensor(), 
